@@ -1,140 +1,120 @@
 package com.coderscampus;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CustomArrayListTest {
+    public class CustomArrayListTest {
+        private CustomArrayList<String> list;
 
-    @Test
-    public void test_add_item_to_empty_list() {
-        // Arrange
-        CustomArrayList<String> list = new CustomArrayList<>();
-
-        // Act
-        boolean result = list.add("Object 1");
-
-        // Assert
-        assertTrue(result);
-        assertEquals(1, list.getSize());
-    }
-
-    @Test
-    public void test_add_item_to_list() {
-        // Arrange
-        CustomArrayList<String> list = new CustomArrayList<>();
-        list.add("Object 1");
-
-        // Act
-        boolean result = list.add("Object 2");
-
-        // Assert
-        assertTrue(result);
-        assertEquals(2, list.getSize());
-    }
-
-    @Test
-    public void test_add_item_to_list_with_index() {
-        // Arrange
-        CustomArrayList<String> list = new CustomArrayList<>();
-        list.add("Object 1");
-
-        // Act
-        boolean result = list.add(0, "Object 2");
-
-        // Assert
-        assertTrue(result);
-        assertEquals(2, list.getSize());
-    }
-
-    @Test
-    public void test_add_item_to_list_with_index_out_of_bounds() {
-        // Arrange
-        CustomArrayList<String> list = new CustomArrayList<>();
-        list.add("Object 1");
-
-        // Act and Assert
-        try {
-            list.add(2, "Object 2");
-            fail("Expected IndexOutOfBoundsException");
-        } catch (IndexOutOfBoundsException e) {
-            assertEquals(1, list.getSize());
+        @BeforeEach
+        void setUp() {
+            list = new CustomArrayList<>();
         }
-    }
+
+        @Test
+        void testAddAtIndex() {
+            // Arrange
+            list.add("Item 1");
+            list.add("Item 2");
+
+            // Act
+            boolean result = list.add(1, "Middle");
+
+            // Assert
+            assertTrue(result);
+            assertEquals(3, list.getSize());
+            assertEquals("Middle", list.get(1));
+        }
+
+        @Test
+        void test_index_out_of_bounds_boundary_conditions() {
+            list.add("First");
+
+            // Test add boundaries
+            assertThrows(IndexOutOfBoundsException.class,
+                    () -> list.add(100, "Out of bounds"));
+            assertThrows(IndexOutOfBoundsException.class,
+                    () -> list.add(-1, "Negative index"));
+
+            // Test get boundaries
+            assertThrows(IndexOutOfBoundsException.class,
+                    () -> list.get(1));
+            assertThrows(IndexOutOfBoundsException.class,
+                    () -> list.get(-1));
+
+            // Test remove boundaries
+            assertThrows(IndexOutOfBoundsException.class,
+                    () -> list.remove(1));
+            assertThrows(IndexOutOfBoundsException.class,
+                    () -> list.remove(-1));
+        }
+
+        @Test
+        void test_remove() {
+            // Arrange
+            list.add("Item 1");
+
+            // Act
+            String removed = list.remove(0);
+
+            // Assert
+            assertEquals("Item 1", removed);
+            assertEquals(0, list.getSize());
+        }
+
+        @Test
+        void test_array_scale() {
+            // Arrange
+            for (int i = 0; i < 20; i++) {
+                list.add("Item " + i);
+            }
+
+            // Act
+            list.add(15, "New Item");
+
+            // Assert
+            assertEquals(21, list.getSize());
+            assertEquals("Item 0", list.get(0));
+            assertEquals("New Item", list.get(15));
+            assertEquals("Item 19", list.get(20));
+        }
+
+
 
     @Test
-    public void test_get_item_from_list() {
-        // Arrange
-        CustomArrayList<String> list = new CustomArrayList<>();
-        list.add("Object 1");
+    void test_complex_operations() {
 
         // Act
-        String element = list.get(0);
+        list.add("A");
+        list.add("B");
+        list.add(1, "C");
 
-        // Assert
-        assertEquals("Object 1", element);
+        // Act and Assert
+        assertAll(
+                "Complex Operations",
+                () -> assertEquals("C", list.remove(1)),
+                () -> assertEquals(2, list.getSize()),
+                () -> assertEquals("A", list.get(0)),
+                () -> assertEquals("B", list.get(1))
+        );
     }
 
     @Test
-    public void test_get_item_from_list_with_index_out_of_bounds_exception() {
+    void test_array_resize_edge_cases() {
         // Arrange
-        CustomArrayList<String> list = new CustomArrayList<>();
-        list.add("Object 1");
-
-        // Act and Assert
-        try {
-            list.get(1);
-            fail("Expected IndexOutOfBoundsException");
-        } catch (IndexOutOfBoundsException e) {
-            assertEquals(1, list.getSize());
+        for (int i = 0; i < 5; i++) {
+            list.add("Item " + i);
         }
-    }
-
-    @Test
-    public void test_remove_items_from_list() {
-        // Arrange
-        CustomArrayList<String> list = new CustomArrayList<>();
-        list.add("Object 1");
-
-        // Act
-        String element = list.remove(0);
-
-        // Assert
-        assertEquals("Object 1", element);
-        assertEquals(0, list.getSize());
-    }
-
-    @Test
-    public void test_remove_item_from_list_with_index_out_of_bounds_exception() {
-        // Arrange
-        CustomArrayList<String> list = new CustomArrayList<>();
-        list.add("Object 1");
 
         // Act and Assert
-        try {
-            list.remove(1);
-            fail("Expected IndexOutOfBoundsException");
-        } catch (IndexOutOfBoundsException e) {
-            assertEquals(1, list.getSize());
-        }
-    }
+        assertAll(
+                "Resize Edge Cases",
+                () -> assertThrows(IndexOutOfBoundsException.class,
+                        () -> list.add(6, "Beyond size")),
+                () -> assertThrows(IndexOutOfBoundsException.class,
+                        () -> list.add(-1, "Negative index")),
+                () -> assertTrue(list.add(5, "At size")) // Should work at exactly size
+        );
+    } }
 
-    @Test
-    public void test_get_size_of_empty_list() {
-        // Arrange
-        CustomArrayList<String> list = new CustomArrayList<>();
-
-        // Act and Assert
-        assertEquals(0, list.getSize());
-    }
-
-    @Test
-    public void test_get_size_of_list() {
-        // Arrange
-        CustomArrayList<String> list = new CustomArrayList<>();
-        list.add("Object 1");
-
-        // Act and Assert
-        assertEquals(1, list.getSize());
-    }
-}
